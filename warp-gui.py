@@ -68,7 +68,6 @@ class WarpGui(QWidget):
 
     def check_registration(self):
         stdout, _ = self.run_command(['warp-cli', 'registration', 'show'])
-        # Se tiver info no output, considera registrado
         return bool(stdout)
 
     def accept_terms(self):
@@ -94,7 +93,13 @@ class WarpGui(QWidget):
         return stdout if stdout else "-"
 
     def update_connection_status(self):
-        # Atualiza status de conexão e IP, sem tocar no registro
+        # Atualiza status do serviço
+        if self.is_service_active():
+            self.status_label.setText("Status do serviço: Ativo")
+        else:
+            self.status_label.setText("Status do serviço: Inativo")
+
+        # Atualiza status de conexão e IP
         connected = self.get_warp_status()
         ip = self.get_current_ip()
         self.ip_label.setText(f"IP atual: {ip}")
@@ -106,15 +111,19 @@ class WarpGui(QWidget):
     def init_warp(self):
         self.log("Aplicativo iniciado.")
         self.log("Verificando serviço warp-svc...")
+
         if not self.is_service_active():
+            self.status_label.setText("Status do serviço: Inativo")
             self.log("warp-svc está inativo. Tentando iniciar...")
             self.start_service()
             time.sleep(2)
             if not self.is_service_active():
+                self.status_label.setText("Status do serviço: Inativo")
                 self.log("Não foi possível iniciar o serviço warp-svc.")
                 self.toggle_button.setEnabled(False)
                 return
         else:
+            self.status_label.setText("Status do serviço: Ativo")
             self.log("warp-svc está ativo.")
 
         if not self.check_registration():
