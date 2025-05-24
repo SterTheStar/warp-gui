@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QTimer, Qt
 
+
 LANGUAGES = {
     "pt": {
         "title": "Warp Cloudflare - GUI",
@@ -104,6 +105,8 @@ class WarpGui(QWidget):
         self.ip_label = QLabel()
         self.ip_label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.ip_label)
+        self.ip_label.setCursor(Qt.PointingHandCursor)
+        self.ip_label.mousePressEvent = self.toggle_ip_visibility  # clique para alternar
 
         self.toggle_button = QPushButton()
         self.toggle_button.clicked.connect(self.toggle_warp)
@@ -116,6 +119,13 @@ class WarpGui(QWidget):
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.update_connection_status)
         self.update_timer.start(7000)
+
+        # Variáveis para controle da exibição do IP
+        self.ip_real = self.translations["unknown"]
+        self.ip_visible = False
+        self.hide_ip_timer = QTimer()
+        self.hide_ip_timer.setSingleShot(True)
+        self.hide_ip_timer.timeout.connect(self.hide_ip)
 
         self.init_warp()
 
@@ -196,12 +206,15 @@ class WarpGui(QWidget):
 
     def get_current_ip(self):
         stdout, _ = self.run_command(['curl', '-s', 'https://ifconfig.me'])
-        return stdout if stdout else "-"
+        return stdout if stdout else self.translations["unknown"]
 
     def update_connection_status(self):
         connected = self.get_warp_status()
-        ip = self.get_current_ip()
-        self.ip_label.setText(self.translations["ip"].format(ip))
+        self.ip_real = self.get_current_ip()
+        if self.ip_visible:
+            self.ip_label.setText(self.translations["ip"].format(self.ip_real))
+        else:
+            self.ip_label.setText(self.translations["ip"].format("******"))
         self.status_label.setText(self.translations["status"].format(
             "Conectado" if connected else "Desconectado"
         ))
@@ -269,6 +282,24 @@ class WarpGui(QWidget):
         else:
             QMessageBox.warning(self, "Erro", self.translations["toggle_error"])
         self.toggle_button.setEnabled(True)
+
+    def toggle_ip_visibility(self, event):
+        if self.ip_visible:
+            # Se estiver visível, oculta ao clicar
+            self.hide_ip()
+        else:
+            # Se estiver oculto, mostra e inicia timer para ocultar depois de 15s
+            self.show_ip()
+
+    def show_ip(self):
+        self.ip_visible = True
+        self.ip_label.setText(self.translations["ip"].format(self.ip_real))
+        self.hide_ip_timer.start(15000)  # 15 segundos
+
+    def hide_ip(self):
+        self.ip_visible = False
+        self.ip_label.setText(self.translations["ip"].format("******"))
+        self.hide_ip_timer.stop()
 
 
 if __name__ == "__main__":
