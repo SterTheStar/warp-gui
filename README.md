@@ -1,33 +1,33 @@
 # Warp Cloudflare - GUI
 
-Uma interface gráfica simples em PyQt5 para gerenciar a conexão com o Cloudflare Warp via `warp-cli` no Linux.
+A simple PyQt5 graphical interface to manage the Cloudflare Warp connection via `warp-cli` on Linux.
 
-## Recursos
+## Features
 
-- Inicia e verifica o status do serviço `warp-svc`.
-- Mostra o IP atual.
-- Conecta e desconecta o Warp com um clique.
-- Exibe logs em tempo real.
-- Registra automaticamente o Warp, se necessário.
+- Starts and checks the status of the `warp-svc` service.
+- Displays the current IP address.
+- Connects and disconnects Warp with a single click.
+- Shows real-time logs.
+- Automatically registers Warp if needed.
 
-## Requisitos
+## Requirements
 
 - Python 3
-- warp-cli e warp-svc instalados
-- `systemd` e permissões para usar `sudo`
+- warp-cli and warp-svc installed
+- `systemd` and permissions to use `sudo`
 
-## Instalação
+## Installation
 
-Instale as dependências do Python:
+Install Python dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Como usar
+## How to use
 
 ```bash
 sudo python3 warp_gui.py
 ```
 
-> **Dica:** Execute com permissões adequadas para evitar falhas ao controlar o serviço Warp.
+> **Tip:** Run with proper permissions to avoid failures when controlling the Warp service.
